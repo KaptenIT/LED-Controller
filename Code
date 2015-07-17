@@ -1,0 +1,55 @@
+#include <EEPROM.h>
+#include <SPI.h>
+#include <GD2.h>
+#define PAINT_APLHA() GD.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA);
+#define CLEAR_ALPHA() GD.BlendFunc(ZERO,ONE_MINUS_SRC_ALPHA);
+
+void setup()
+{
+  GD.begin();
+}
+
+#define white     0xFFFFFF
+#define red       0xFF0000
+#define green     0x00FF00
+#define blue      0x0000FF
+
+
+void loop() {
+  // put your main code here, to run repeatedly:
+int ButtonposX0 =462;
+int ButtonposY0 = 0, ButtonposY1 = 18;
+
+button(ButtonposX0, ButtonposY0, 1);
+
+
+}
+
+
+
+
+static void button(int x, int y, byte label)
+{
+  int sz = 18;
+
+  GD.Tag(label);
+  // Ritar transparent ruta
+//  PAINT_ALPHA();
+  GD.Begin(RECTS);
+  GD.LineWidth(16 * 20);
+  GD.Vertex2ii(x-sz, y-sz);
+  GD.Vertex2ii(x+sz, y+sz);
+//  CLEAR_ALPHA();
+
+  //ritar ramen utan transparans.
+  GD.ColorA(200);
+  GD.ColorA(200);
+  GD.LineWidth(16 * 15);
+  GD.Vertex2ii(x-sz, y-sz);
+  GD.Vertex2ii(x+sz, y+sz);
+
+  // ritar ut siffran/texten
+  GD.ColorA(0xffffff);
+ // PAINT_ALPHA();
+  GD.cmd_number(x,y, 31,OPT_CENTER,label);
+}
