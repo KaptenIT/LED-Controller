@@ -1,55 +1,113 @@
 #include <EEPROM.h>
 #include <SPI.h>
 #include <GD2.h>
-#define PAINT_APLHA() GD.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA);
-#define CLEAR_ALPHA() GD.BlendFunc(ZERO,ONE_MINUS_SRC_ALPHA);
 
-void setup()
-{
-  GD.begin();
+static uint16_t valueR = 0;
+static uint16_t valueG = 0;
+static uint16_t valueB = 0;
+static uint16_t options = 1;
+void setup() {
+GD.begin();
+void cmd_calibrate(void);
+
+//GD.cmd_loadimage(0,0);
+//GD.load("healsky3.jpg");
+
+
+char store1 = 0x000000;
+char store2 = 0x000000;
+char store3 = 0x000000;
+char store4 = 0x000000;
+char store5 = 0x000000;
 }
 
-#define white     0xFFFFFF
-#define red       0xFF0000
-#define green     0x00FF00
-#define blue      0x0000FF
 
+#define White 0xFFFFFF
+#define Green 0x00FF00
+#define Blue  0x0000FF
+
+#define Tag_Button1 101
+#define Tag_Button2 102
+#define Tag_Button3 103
+#define Tag_Button4 104
+#define Tag_Button5 105
+#define Tag_SliderR 201
+#define Tag_SliderG 202
+#define Tag_SliderB 203
 
 void loop() {
-  // put your main code here, to run repeatedly:
-int ButtonposX0 =462;
-int ButtonposY0 = 0, ButtonposY1 = 18;
+GD.get_inputs();
 
-button(ButtonposX0, ButtonposY0, 1);
+switch (GD.inputs.track_tag & 0xff){
 
-
+  case Tag_SliderR:
+  valueR=GD.inputs.track_val;
+  //uint8_t valR8 = valueR/257;
+  break;
+  case Tag_SliderG:
+  valueG=GD.inputs.track_val;
+  break;
+  case Tag_SliderB:
+  valueB=GD.inputs.track_val;
+  break;
 }
-
-
-
-
-static void button(int x, int y, byte label)
+if(GD.inputs.tag == 1)
 {
-  int sz = 18;
-
-  GD.Tag(label);
-  // Ritar transparent ruta
-//  PAINT_ALPHA();
-  GD.Begin(RECTS);
-  GD.LineWidth(16 * 20);
-  GD.Vertex2ii(x-sz, y-sz);
-  GD.Vertex2ii(x+sz, y+sz);
-//  CLEAR_ALPHA();
-
-  //ritar ramen utan transparans.
-  GD.ColorA(200);
-  GD.ColorA(200);
-  GD.LineWidth(16 * 15);
-  GD.Vertex2ii(x-sz, y-sz);
-  GD.Vertex2ii(x+sz, y+sz);
-
-  // ritar ut siffran/texten
-  GD.ColorA(0xffffff);
- // PAINT_ALPHA();
-  GD.cmd_number(x,y, 31,OPT_CENTER,label);
+  delay(500);
+  if(GD.inputs.tag == 1)
+  {
+   // lagra färgen
+ 
+  }
+  else  
+  {
+    //sätt färgen
+ 
+  }
 }
+
+GD.Clear();
+
+GD.Tag(Tag_Button1);
+GD.cmd_fgcolor(0x800000);
+CreateButton(400,4,75,50,28,"1", White);
+GD.Tag(Tag_Button2);
+CreateButton(400,58,75,50,28,"2", White);;
+GD.Tag(Tag_Button3);
+CreateButton(400,112,75,50,28,"3", White);
+GD.Tag(Tag_Button4);
+CreateButton(400,166,75,50,28,"4", White);
+GD.Tag(Tag_Button5);
+CreateButton(400,220,75,50,28,"5", White);
+
+
+// Sliders
+GD.cmd_fgcolor(0xFF0000);
+GD.Tag(Tag_SliderR);
+GD.cmd_slider(50, 30, 250, 20, options, valueR, 65535);
+GD.cmd_track(50, 30, 250, 10, Tag_SliderR);
+
+GD.cmd_fgcolor(0x00FF00);
+GD.Tag(Tag_SliderG);
+GD.cmd_slider(50, 130, 250, 20, options, valueG, 65535);
+GD.cmd_track(50, 130, 250, 10, Tag_SliderG);
+
+GD.cmd_fgcolor(0x0000FF);
+GD.Tag(Tag_SliderB);
+GD.cmd_slider(50, 230, 250, 20, options, valueB, 65535);
+GD.cmd_track(50, 230, 250, 10, Tag_SliderB);
+
+
+
+
+GD.swap();
+}
+
+
+void CreateButton(int posX, int posY, int Width, int Height, byte font, const char * text, long int Color ) { // skapar en knapp med position X, position Y, bredd, höjd, font typ, och string.
+  
+   GD.ColorRGB(Color);
+ GD.Begin(RECTS);
+  GD.cmd_button(posX, posY, Width, Height, font, options, text );
+  }
+  
