@@ -6,19 +6,18 @@ static uint16_t valueR = 0;
 static uint16_t valueG = 0;
 static uint16_t valueB = 0;
 static uint16_t options = 1;
+long int store1 = 0x000000;
+long int store2 = 0x000000;
+long int store3 = 0x000000;
+long int store4 = 0x000000;
+long int store5 = 0x000000;
+
 void setup() {
+  Serial.begin(9600);
 GD.begin();
-void cmd_calibrate(void);
 
 //GD.cmd_loadimage(0,0);
 //GD.load("healsky3.jpg");
-
-
-char store1 = 0x000000;
-char store2 = 0x000000;
-char store3 = 0x000000;
-char store4 = 0x000000;
-char store5 = 0x000000;
 }
 
 
@@ -41,14 +40,26 @@ GD.get_inputs();
 switch (GD.inputs.track_tag & 0xff){
 
   case Tag_SliderR:
-  valueR=GD.inputs.track_val;
-  //uint8_t valR8 = valueR/257;
+  {
+     valueR=GD.inputs.track_val;
+      int valR = map(valueR, 0, 65535,0,255);
+      //Serial.println(valR);
+      printHexR(valR,2);
+  }
   break;
   case Tag_SliderG:
-  valueG=GD.inputs.track_val;
+  {
+      valueG=GD.inputs.track_val;
+       int valG = map(valueG, 0, 65535,0,255);
+       printHex(valG,4);
+  }
   break;
   case Tag_SliderB:
-  valueB=GD.inputs.track_val;
+  {
+     valueB=GD.inputs.track_val;
+       int valB = map(valueB, 0, 65535,0,255);
+    printHex(valB,6);
+  }
   break;
 }
 if(GD.inputs.tag == 1)
@@ -56,6 +67,7 @@ if(GD.inputs.tag == 1)
   delay(500);
   if(GD.inputs.tag == 1)
   {
+    store1 = 0xFFFF00;
    // lagra färgen
  
   }
@@ -69,15 +81,19 @@ if(GD.inputs.tag == 1)
 GD.Clear();
 
 GD.Tag(Tag_Button1);
-GD.cmd_fgcolor(0x800000);
+GD.cmd_fgcolor(store1);
 CreateButton(400,4,75,50,28,"1", White);
 GD.Tag(Tag_Button2);
+GD.cmd_fgcolor(store2);
 CreateButton(400,58,75,50,28,"2", White);;
 GD.Tag(Tag_Button3);
+GD.cmd_fgcolor(store3);
 CreateButton(400,112,75,50,28,"3", White);
 GD.Tag(Tag_Button4);
+GD.cmd_fgcolor(store4);
 CreateButton(400,166,75,50,28,"4", White);
 GD.Tag(Tag_Button5);
+GD.cmd_fgcolor(store5);
 CreateButton(400,220,75,50,28,"5", White);
 
 
@@ -109,5 +125,24 @@ void CreateButton(int posX, int posY, int Width, int Height, byte font, const ch
    GD.ColorRGB(Color);
  GD.Begin(RECTS);
   GD.cmd_button(posX, posY, Width, Height, font, options, text );
+  }
+
+ void printHexR(int num, int precision) {
+     char tmp[16];
+     char format[128];
+
+     sprintf(format, "0x%%.%dX", precision);
+
+     sprintf(tmp, format, num);
+     Serial.print(tmp);
+  }
+  void printHex(int num, int precision) {
+     char tmp[16];
+     char format[128];
+
+     sprintf(format, "%%.%dX", precision);
+
+     sprintf(tmp, format, num);
+     Serial.print(tmp);
   }
   
