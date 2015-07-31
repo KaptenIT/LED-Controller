@@ -2,19 +2,29 @@
 #include <SPI.h>
 #include <GD2.h>
 
+
 static uint16_t valueR = 0;
 static uint16_t valueG = 0;
 static uint16_t valueB = 0;
 static uint16_t options = 1;
+String RedHex = "0x00";
+String GreenHex = "00";
+String BlueHex = "00";
+String ColorHex;
+
+long int currentColor;
 long int store1 = 0x000000;
 long int store2 = 0x000000;
 long int store3 = 0x000000;
 long int store4 = 0x000000;
 long int store5 = 0x000000;
+const long interval = 10000;
+unsigned long previousMillis=0;
+
 
 void setup() {
   Serial.begin(9600);
-GD.begin();
+  GD.begin();
 
 //GD.cmd_loadimage(0,0);
 //GD.load("healsky3.jpg");
@@ -30,91 +40,199 @@ GD.begin();
 #define Tag_Button3 103
 #define Tag_Button4 104
 #define Tag_Button5 105
+#define Tag_Button6 106
+#define Tag_Button7 107
+#define Tag_Button8 108
+#define Tag_Button9 109
+#define Tag_Button10 110
 #define Tag_SliderR 201
 #define Tag_SliderG 202
 #define Tag_SliderB 203
 
 void loop() {
+  unsigned long currentMillis++;
 GD.get_inputs();
+GD.Clear();
+
 
 switch (GD.inputs.track_tag & 0xff){
 
   case Tag_SliderR:
   {
      valueR=GD.inputs.track_val;
-      int valR = map(valueR, 0, 65535,0,255);
-      //Serial.println(valR);
-      printHexR(valR,2);
+     int valR = map(valueR, 0, 65535,0,255);
+     RedHex = printHexR(valR,2);
+     
   }
   break;
   case Tag_SliderG:
   {
       valueG=GD.inputs.track_val;
-       int valG = map(valueG, 0, 65535,0,255);
-       printHex(valG,4);
+      int valG = map(valueG, 0, 65535,0,255);
+      BlueHex = printHex(valG,2);
+     
   }
   break;
   case Tag_SliderB:
   {
      valueB=GD.inputs.track_val;
        int valB = map(valueB, 0, 65535,0,255);
-    printHex(valB,6);
+      GreenHex = printHex(valB,2);
+      
+  }
+  break;
+  
+}
+
+ColorHex = RedHex + BlueHex + GreenHex;
+
+switch (GD.inputs.tag){
+  case Tag_Button1:
+  {
+    
+//     store1 = ColorHex.toInt;
+    //delay(2000);
+    if(GD.inputs.tag == Tag_Button1)
+     store1 = stringToLong(ColorHex);
+    else
+     currentColor = store1;
+  }
+  break;
+  case Tag_Button2:
+  {
+    
+    delay(500);
+    if(GD.inputs.tag == Tag_Button2)
+      store2 = stringToLong(ColorHex);
+    else
+      currentColor = store2;
+  }
+  break;
+  case Tag_Button3:
+  {
+  
+    delay(500);
+    if(GD.inputs.tag == Tag_Button3)
+      store3 = stringToLong(ColorHex);
+    else
+      currentColor = store3;
+  }
+  break;
+  case Tag_Button4:
+  {
+ 
+    delay(500);
+    if(GD.inputs.tag == Tag_Button4)
+    store4 = stringToLong(ColorHex);
+    else
+      currentColor = store4;
+  }
+  break;
+    case Tag_Button5:
+  {
+    
+    delay(500);
+    if(GD.inputs.tag == Tag_Button5)
+    store5 = stringToLong(ColorHex);
+    else
+      currentColor = store5;
+  }
+  break;
+  case Tag_Button6:
+  {
+    
+  }
+  break;
+  case Tag_Button7:
+  {
+   
+  }
+  break;
+  case Tag_Button8:
+  {
+   
+  }
+  break;
+  case Tag_Button9:
+  {
+    
+  }
+  break;
+  case Tag_Button10:
+  {
+    
   }
   break;
 }
-if(GD.inputs.tag == 1)
-{
-  delay(500);
-  if(GD.inputs.tag == 1)
-  {
-    store1 = 0xFFFF00;
-   // lagra färgen
- 
-  }
-  else  
-  {
-    //sätt färgen
- 
-  }
+
+
+  
+ // delay(500);
+ // if(GD.inputs.tag == 1)
+ // {
+ //   store1 = 0xFFFF00;
+ //   lagra färgen
+
+if( currentMillis - previousMillis>= interval)
+   GD.wr(REG_PWM_DUTY, 10);
+   
+   
+if(previousMilliss<= interval){
+  GD.wr(REG_PWM_DUTY,127);
+  currentMillis = 0;}
+
+{ // Create Save button
+  GD.Tag(Tag_Button1);
+  GD.cmd_fgcolor(store1);
+  CreateButton(400,4,75,50,28,"1", White);
+  GD.Tag(Tag_Button2);
+  GD.cmd_fgcolor(store2);
+  CreateButton(400,58,75,50,28,"2", White);;
+  GD.Tag(Tag_Button3);
+  GD.cmd_fgcolor(store3);
+  CreateButton(400,112,75,50,28,"3", White);
+  GD.Tag(Tag_Button4);
+  GD.cmd_fgcolor(store4);
+  CreateButton(400,166,75,50,28,"4", White);
+  GD.Tag(Tag_Button5);
+  GD.cmd_fgcolor(store5);
+  CreateButton(400,220,75,50,28,"5", White);
 }
 
-GD.Clear();
+{// Fading White
+  GD.Tag(Tag_Button6);
+  GD.cmd_fgcolor(0xFFFFFF);
+  CreateButton(320,4,75,50,28,"", White);
+  GD.Tag(Tag_Button7);
+  GD.cmd_fgcolor(0xE0E0E0);
+  CreateButton(320,58,75,50,28,"", White);
+  GD.Tag(Tag_Button8);
+  GD.cmd_fgcolor(0xA0A0A0);
+  CreateButton(320,112,75,50,28,"", White);
+  GD.Tag(Tag_Button9);
+  GD.cmd_fgcolor(0x505050);
+  CreateButton(320,166,75,50,28,"", White);
+  GD.Tag(Tag_Button10);
+  GD.cmd_fgcolor(0x000000);
+  CreateButton(320,220,75,50,28,"", White);
+}
 
-GD.Tag(Tag_Button1);
-GD.cmd_fgcolor(store1);
-CreateButton(400,4,75,50,28,"1", White);
-GD.Tag(Tag_Button2);
-GD.cmd_fgcolor(store2);
-CreateButton(400,58,75,50,28,"2", White);;
-GD.Tag(Tag_Button3);
-GD.cmd_fgcolor(store3);
-CreateButton(400,112,75,50,28,"3", White);
-GD.Tag(Tag_Button4);
-GD.cmd_fgcolor(store4);
-CreateButton(400,166,75,50,28,"4", White);
-GD.Tag(Tag_Button5);
-GD.cmd_fgcolor(store5);
-CreateButton(400,220,75,50,28,"5", White);
+{// Sliders
+  GD.cmd_fgcolor(0xFF0000);
+  GD.Tag(Tag_SliderR);
+  GD.cmd_slider(25, 30, 250, 20, options, valueR, 65535);
+  GD.cmd_track(25, 30, 250, 10, Tag_SliderR);
 
+  GD.cmd_fgcolor(0x00FF00);
+  GD.Tag(Tag_SliderG);
+  GD.cmd_slider(25, 130, 250, 20, options, valueG, 65535);
+  GD.cmd_track(25, 130, 250, 10, Tag_SliderG);
 
-// Sliders
-GD.cmd_fgcolor(0xFF0000);
-GD.Tag(Tag_SliderR);
-GD.cmd_slider(50, 30, 250, 20, options, valueR, 65535);
-GD.cmd_track(50, 30, 250, 10, Tag_SliderR);
-
-GD.cmd_fgcolor(0x00FF00);
-GD.Tag(Tag_SliderG);
-GD.cmd_slider(50, 130, 250, 20, options, valueG, 65535);
-GD.cmd_track(50, 130, 250, 10, Tag_SliderG);
-
-GD.cmd_fgcolor(0x0000FF);
-GD.Tag(Tag_SliderB);
-GD.cmd_slider(50, 230, 250, 20, options, valueB, 65535);
-GD.cmd_track(50, 230, 250, 10, Tag_SliderB);
-
-
-
+  GD.cmd_fgcolor(0x0000FF);
+  GD.Tag(Tag_SliderB);
+  GD.cmd_slider(25, 230, 250, 20, options, valueB, 65535);
+  GD.cmd_track(25, 230, 250, 10, Tag_SliderB);
+}
 
 GD.swap();
 }
@@ -126,23 +244,30 @@ void CreateButton(int posX, int posY, int Width, int Height, byte font, const ch
  GD.Begin(RECTS);
   GD.cmd_button(posX, posY, Width, Height, font, options, text );
   }
-
- void printHexR(int num, int precision) {
+ char* printHexR(int num, int precision) {
      char tmp[16];
      char format[128];
 
      sprintf(format, "0x%%.%dX", precision);
 
      sprintf(tmp, format, num);
-     Serial.print(tmp);
+     return tmp;
   }
-  void printHex(int num, int precision) {
+  char* printHex(int num, int precision) {
      char tmp[16];
      char format[128];
 
      sprintf(format, "%%.%dX", precision);
 
      sprintf(tmp, format, num);
-     Serial.print(tmp);
+     return tmp;
   }
+
+long stringToLong(String s)
+{
+   char arr[12];
+   s.toCharArray(arr, sizeof(arr));
+   return atol(arr);
+}
+
   
